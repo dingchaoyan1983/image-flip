@@ -1,23 +1,32 @@
-import logo from './logo.svg';
+import React, { useRef, useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
+  const fileRef = useRef();
+  const [imgUrl, setImgUrl] = useState();
+  const convert = () => {
+    const formData = new FormData();
+    const file = fileRef.current?.files?.[0];
+    // const file = fileRef.current
+    formData.append('file', file);
+    console.log(formData);
+    axios({
+      responseType: 'blob',
+      method: "post",
+      url: "/api/file",
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((res) => {
+      const url = window.URL.createObjectURL(res.data);
+      setImgUrl(url);
+    });
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input type="file" ref={fileRef} />
+      <button onClick={convert}>转换</button>
+      <img src={imgUrl} style={{ width: 400 }}/>
     </div>
   );
 }
